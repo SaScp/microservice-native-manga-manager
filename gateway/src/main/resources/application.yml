@@ -1,0 +1,24 @@
+spring:
+  application:
+   name: gateway
+  cloud:
+    gateway:
+      routes[0]:
+        id: discovery-server
+        uri: http://localhost:8761
+        predicates[0]: Path=/eureka/web
+        filters[0]: SetPath=/
+      routes[1]:
+        id: discovery-server-static
+        uri: http://localhost:8761
+        predicates[0]: Path=/eureka/**
+      routes[2]:
+        id: user-service
+        uri: http://localhost:8081
+eureka:
+  client:
+
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+  instance:
+    ip-address: true

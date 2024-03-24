@@ -1,0 +1,25 @@
+spring:
+  application:
+   name: user-service
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+    stream:
+      virtual-host: vhost
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: true
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+  instance:
+    ip-address: true
+server:
+  port: 8081
