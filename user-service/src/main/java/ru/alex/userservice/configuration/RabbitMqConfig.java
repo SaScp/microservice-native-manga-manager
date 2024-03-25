@@ -1,4 +1,4 @@
-package ru.alex.userservice;
+package ru.alex.userservice.configuration;
 
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.core.*;

@@ -3,6 +3,10 @@ spring:
    name: gateway
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes[0]:
         id: discovery-server
         uri: http://localhost:8761
@@ -15,9 +19,9 @@ spring:
       routes[2]:
         id: user-service
         uri: http://localhost:8081
+        predicates[0]: Path=/user/**
 eureka:
   client:
-
     service-url:
       default-zone: http://localhost:8761/eureka/
   instance:
