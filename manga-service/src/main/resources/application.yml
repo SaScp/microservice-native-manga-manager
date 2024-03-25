@@ -1,0 +1,16 @@
+spring:
+  application:
+   name: manga-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+    stream:
+      virtual-host: vhost
+server:
+  port: 8090
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/

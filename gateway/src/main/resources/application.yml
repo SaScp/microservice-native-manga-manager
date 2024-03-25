@@ -20,6 +20,14 @@ spring:
         id: user-service
         uri: http://localhost:8081
         predicates[0]: Path=/user/**
+      routes[3]:
+        id: manga-service
+        uri: http://localhost:8090
+        predicates[0]: Path=/manga/**
+      routes[4]:
+        id: comment-service
+        uri: http://localhost:8100
+        predicates[0]: Path=/comment/**
 eureka:
   client:
     service-url:
