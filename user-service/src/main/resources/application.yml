@@ -2,15 +2,15 @@ spring:
   application:
    name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/oauth-practic
-    username: postgres
-    password: Operator332@@
+    url: 
+    username: 
+    password: 
     driver-class-name: org.postgresql.Driver
   rabbitmq:
     host: localhost
     port: 5672
-    username: myuser
-    password: secret
+    username: 
+    password: 
     stream:
       virtual-host: vhost
 eureka:
