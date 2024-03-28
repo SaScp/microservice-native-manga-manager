@@ -23,3 +23,8 @@ CREATE TABLE IF NOT EXISTS t_user_t_role
     role_id INT REFERENCES user_microservice.t_role (id),
     PRIMARY KEY (user_id, role_id)
     );
+CREATE TABLE IF NOT EXISTS user_microservice.t_user_collection_manga(
+    manga_id VARCHAR(255) NOT NULL,
+    user_id  VARCHAR(255) REFERENCES user_microservice.t_user (id),
+    PRIMARY KEY (user_id, manga_id)
+    )

@@ -1,15 +1,13 @@
 package ru.alex.userservice.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,6 +37,12 @@ public class User {
 
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
+
+    @Column(name = "c_role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(schema = "user_microservice",name = "t_user_t_role")
+    @Enumerated(value = EnumType.STRING)
+    private Set<Role> roleSet;
 
     @Column(name = "sex")
     private char sex;
