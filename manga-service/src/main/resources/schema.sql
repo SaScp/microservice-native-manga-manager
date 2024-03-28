@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS manga_microservice.t_manga
     secondary_name VARCHAR(255)                   NOT NULL,
     issue_year     INT                            NOT NULL,
     avg_rating     NUMERIC(10, 2)                 NOT NULL,
-    c_type         INTEGER REFERENCES t_type (id) NOT null,
+    c_type         INTEGER REFERENCES manga_microservice.t_type (id) NOT null,
     is_yaoi        BOOLEAN                        NOT NULL,
     is_erotic      BOOLEAN                        NOT NULL,
     img            VARCHAR(255)                   NOT NULL,
@@ -28,10 +28,15 @@ CREATE TABLE IF NOT EXISTS manga_microservice.t_manga
     count_chapters INTEGER                        NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS t_manga_t_genre
+CREATE TABLE IF NOT EXISTS manga_microservice.t_manga_t_genre
 (
     manga_id VARCHAR(255) REFERENCES manga_microservice.t_manga(id),
     genre_id INT REFERENCES manga_microservice.t_type(id),
     PRIMARY KEY (manga_id, genre_id)
     );
-
+create table manga_microservice.t_user_collection_manga
+(
+    user_id  varchar(255) not null,
+    manga_id varchar(255) not null references manga_microservice.t_manga(id),
+    primary key (user_id, manga_id)
+);
