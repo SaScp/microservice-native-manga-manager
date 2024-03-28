@@ -1,6 +1,6 @@
 spring:
   application:
-   name: user-service
+   name: manga-service
   datasource:
     url:
     username:
@@ -13,13 +13,9 @@ spring:
     password:
     stream:
       virtual-host: vhost
+server:
+  port: 8090
 eureka:
   client:
-    fetch-registry: false
-    register-with-eureka: true
     service-url:
       default-zone: http://localhost:8761/eureka/
-  instance:
-    ip-address: true
-server:
-  port: 8081
