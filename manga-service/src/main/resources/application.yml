@@ -8,6 +8,11 @@ spring:
     password:
     stream:
       virtual-host: vhost
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
 server:
   port: 8090
 eureka:
