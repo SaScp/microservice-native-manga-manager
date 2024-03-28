@@ -1,6 +1,11 @@
 spring:
   application:
    name: manga-service
+  datasource:
+    url:
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
   rabbitmq:
     host: localhost
     port: 5672
