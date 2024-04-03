@@ -1,6 +1,5 @@
 package ru.alex.userservice.dto;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDateTime;
