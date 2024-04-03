@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.alex.mangaservice.model.Manga;
 
 @Repository
-public interface MangaRepository extends JpaRepository<Manga, String> {
+public interface MangaRepository/* extends JpaRepository<Manga, String>*/ {
 }
