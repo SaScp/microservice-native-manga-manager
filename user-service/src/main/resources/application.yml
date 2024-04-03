@@ -6,13 +6,6 @@ spring:
     username:
     password:
     driver-class-name: org.postgresql.Driver
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username:
-    password:
-    stream:
-      virtual-host: vhost
 eureka:
   client:
     fetch-registry: false

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS user_microservice.t_user
     sex               CHAR                NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS t_user_t_role
+CREATE TABLE IF NOT EXISTS user_microservice.t_user_t_role
 (
     user_id VARCHAR(255) REFERENCES user_microservice.t_user (id),
     role_id INT REFERENCES user_microservice.t_role (id),
