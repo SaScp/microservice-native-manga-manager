@@ -2,6 +2,7 @@ package ru.alex.userservice.dao;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -64,7 +65,7 @@ public class UserDao extends AbstractDao<User> {
 
     @Override
     public Optional<List<User>> findAll() {
-        return Optional.empty();
+        return Optional.of(this.jdbcTemplate.query("SELECT * FROM user_microservice.t_user", new BeanPropertyRowMapper<>(User.class)));
     }
 
     @Override
@@ -81,9 +82,11 @@ public class UserDao extends AbstractDao<User> {
         StringBuilder sql = new StringBuilder("UPDATE user_microservice.t_user SET ");
         for (int i = 0; i < fields.length; i++) {
             fields[i].setAccessible(true);
-            if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isEmpty()) {
-                sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
-                params.add(ReflectionUtils.getField(fields[i], entity));
+            if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
+                if (!fields[i].getName().equals("id") && !fields[i].getName().equals("email")) {
+                    sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                    params.add(ReflectionUtils.getField(fields[i], entity));
+                }
             }
         }
         return sql;
