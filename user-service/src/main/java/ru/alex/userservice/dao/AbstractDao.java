@@ -14,13 +14,13 @@ public abstract class AbstractDao<T> {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public abstract T save(T entity);
+    public abstract Optional<T> save(T entity);
 
     public abstract int update(T entity);
 
     public abstract Optional<List<T>> findAll();
 
-    public abstract int delete(int id);
+    public abstract int delete(Integer id);
 
-    public abstract T findById(int id);
+    public abstract Optional<T> findById(Integer id);
 }
