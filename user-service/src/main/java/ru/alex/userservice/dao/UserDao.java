@@ -1,18 +1,26 @@
 package ru.alex.userservice.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import ru.alex.userservice.SQL.UserSQLConstant;
 import ru.alex.userservice.dao.abstract_dao.AbstractDefaultDao;
 import ru.alex.userservice.dao.abstract_dao.FindAllDao;
+import ru.alex.userservice.dao.abstract_dao.FindByIdDao;
 import ru.alex.userservice.model.User;
+import ru.alex.userservice.util.exception.UserNotFoundException;
 
 import java.lang.reflect.Field;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +28,7 @@ import java.util.stream.Stream;
 
 @Component
 @Slf4j
-public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User> {
+public class UserDao extends AbstractDefaultDao<User, String> implements FindAllDao<User> {
 
     public UserDao(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
@@ -35,7 +43,7 @@ public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User
 
         this.jdbcTemplate.update(UserSQLConstant.SAVE_USER_QUERY,
                 entity.getId(), entity.getEmail(), entity.getPassword(), entity.getUsername(),
-                entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getSex());
+                entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getRole());
 
         log.info("save: {}", entity.getId());
         return Optional.ofNullable(entity);
@@ -69,7 +77,7 @@ public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User
     }
 
     @Override
-    public int delete(Long id) {
+    public int delete(String id) {
         if (Optional.ofNullable(id).isEmpty()) {
             log.error("id must be present");
             return 0;
@@ -78,15 +86,19 @@ public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(String id) {
         if (Optional.ofNullable(id).isEmpty()) {
             log.error("id must be present!");
             return Optional.empty();
         }
 
-        return Optional.ofNullable(this.jdbcTemplate
-                .queryForObject(UserSQLConstant.SELECT_BY_ID_USER_QUERY,
-                        new BeanPropertyRowMapper<>(User.class), id));
+        try {
+            return Optional.ofNullable(this.jdbcTemplate
+                    .queryForObject(UserSQLConstant.SELECT_BY_ID_USER_QUERY,
+                            new BeanPropertyRowMapper<>(User.class), id));
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException(id);
+        }
     }
 
     public Optional<User> findByEmail(String email) {
@@ -95,10 +107,13 @@ public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User
             log.error("email must be present!");
             return Optional.empty();
         }
-
-        return Optional.ofNullable(this.jdbcTemplate
-                .queryForObject(UserSQLConstant.SELECT_BY_EMAIL_QUERY,
-                        new BeanPropertyRowMapper<>(User.class), email));
+        try {
+            return Optional.ofNullable(this.jdbcTemplate
+                    .queryForObject(UserSQLConstant.SELECT_BY_EMAIL_QUERY,
+                            new BeanPropertyRowMapper<>(User.class), email));
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException(email);
+        }
     }
 
     private StringBuilder generateUpdateDataForQuery(Field[] fields, List<Object> params, User entity) {
@@ -107,11 +122,18 @@ public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User
             fields[i].setAccessible(true);
             if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
                 if (!fields[i].getName().equals("id") && !fields[i].getName().equals("email")) {
-                    sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                    if (fields[i].isAnnotationPresent(Column.class)) {
+                        sql.append(fields[i].getAnnotation(Column.class).value()).append(i + 1 < fields.length ? "=?," : " ");
+                    } else {
+                        sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                    }
                     params.add(ReflectionUtils.getField(fields[i], entity));
                 }
             }
         }
         return sql;
     }
+
+
 }
+

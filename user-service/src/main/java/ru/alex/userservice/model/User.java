@@ -3,8 +3,7 @@ package ru.alex.userservice.model;
 import lombok.*;
 import org.springframework.data.relational.core.mapping.Column;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -25,11 +24,13 @@ public class User {
     private String fullName;
 
     @Column(value = "date_of_birth")
-    private LocalDateTime dateOfBirth;
+    private Date dateOfBirth;
 
     @Column(value = "registration_date")
-    private LocalDateTime registrationDate;
+    private Date registrationDate;
 
-    private Character sex;
+    @Column(value = "c_role")
+    private String role;
+
 
 }

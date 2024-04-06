@@ -26,6 +26,6 @@ public class DefaultUserService implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User findById(String id) {
-        return new User();
+        return userRepository.findById(id).orElse(new User());
     }
 }

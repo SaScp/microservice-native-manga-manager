@@ -2,13 +2,12 @@ package ru.alex.userservice.dao.abstract_dao;
 
 import java.util.Optional;
 
-public interface CrudDao<T> {
+public interface DefaultDao<T, ID> {
 
     Optional<T> save(T entity);
 
     int update(T entity);
 
-    int delete(Long id);
+    int delete(ID id);
 
-    Optional<T> findById(Long id);
 }

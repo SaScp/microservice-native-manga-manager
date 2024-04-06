@@ -12,7 +12,7 @@ public final class UserSQLConstant {
     public static final String SELECT_BY_ID_USER_QUERY = "SELECT * FROM user_microservice.t_user WHERE id=? LIMIT 1";
 
     public static final String SAVE_USER_QUERY = "INSERT INTO user_microservice.t_user" +
-    "(id, email, password, username, full_name, date_of_birth, registration_date, sex) VALUES (?,?,?,?,?,?,?,?)";
+    "(id, email, password, username, full_name, date_of_birth, registration_date, role) VALUES (?,?,?,?,?,?,?,?)";
 
     public static final String SELECT_BY_EMAIL_QUERY = "SELECT * FROM user_microservice.t_user WHERE email=? LIMIT 1";
 

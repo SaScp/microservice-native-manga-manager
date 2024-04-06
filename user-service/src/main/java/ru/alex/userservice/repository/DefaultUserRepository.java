@@ -11,14 +11,23 @@ public class DefaultUserRepository implements UserRepository {
 
     private UserDao userDao;
 
-    @Override
-    public Optional<User> findByEmail(String email) {
-        return Optional.empty();
+    public DefaultUserRepository(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
-    public User save(User entity) {
+    public Optional<User> findByEmail(String email) {
+        return userDao.findByEmail(email);
+    }
+
+    @Override
+    public Optional<User> save(User entity) {
         return userDao.save(entity);
+    }
+
+    @Override
+    public Optional<User> findById(String id) {
+        return userDao.findById(id);
     }
 
 
