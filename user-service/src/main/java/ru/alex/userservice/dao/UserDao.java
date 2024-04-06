@@ -1,6 +1,9 @@
 package ru.alex.userservice.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -41,12 +44,21 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
             return Optional.empty();
         }
 
-        this.jdbcTemplate.update(UserSQLConstant.SAVE_USER_QUERY,
-                entity.getId(), entity.getEmail(), entity.getPassword(), entity.getUsername(),
-                entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getRole());
+        try {
+            this.jdbcTemplate.update(UserSQLConstant.SAVE_USER_QUERY,
+                    entity.getId(), entity.getEmail(), entity.getPassword(), entity.getUsername(),
+                    entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getRole());
 
-        log.info("save: {}", entity.getId());
-        return Optional.ofNullable(entity);
+            log.info("save: {}", entity.getId());
+            return Optional.ofNullable(entity);
+
+        } catch (DuplicateKeyException e) {
+            log.error("duplicate key exception", e);
+            throw new DuplicateKeyException(entity.getId());
+        } catch (DataIntegrityViolationException e) {
+            log.error("data integrity violation", e);
+            throw new DataIntegrityViolationException(entity.getId());
+        }
     }
 
     @Override
@@ -66,14 +78,24 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
         }
         sql.append(UserSQLConstant.END_UPDATE_USER_QUERY);
 
-        return this.jdbcTemplate.update(sql.toString(), params);
+        try {
+            return this.jdbcTemplate.update(sql.toString(), params);
+        }catch (EmptyResultDataAccessException e) {
+            log.error("there are no updated elements in the request");
+            return 0;
+        }
 
     }
 
     @Override
     public Optional<List<User>> findAll() {
-        return Optional.of(this.jdbcTemplate.query(UserSQLConstant.SELECT_USER_QUERY,
-                new BeanPropertyRowMapper<>(User.class)));
+        try {
+            return Optional.of(this.jdbcTemplate.query(UserSQLConstant.SELECT_USER_QUERY,
+                    new BeanPropertyRowMapper<>(User.class)));
+        } catch (EmptyResultDataAccessException e) {
+            log.error("there are no selected elements in the request");
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -82,7 +104,13 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
             log.error("id must be present");
             return 0;
         }
-        return this.jdbcTemplate.update(UserSQLConstant.DELETE_USER_QUERY, id);
+        try {
+            return this.jdbcTemplate.update(UserSQLConstant.DELETE_USER_QUERY, id);
+        } catch (EmptyResultDataAccessException e) {
+            log.error("there are no deleted elements in the request");
+            return 0;
+        }
+
     }
 
     @Override
@@ -97,7 +125,7 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
                     .queryForObject(UserSQLConstant.SELECT_BY_ID_USER_QUERY,
                             new BeanPropertyRowMapper<>(User.class), id));
         } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException(id);
+            return Optional.empty();
         }
     }
 
@@ -112,7 +140,7 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
                     .queryForObject(UserSQLConstant.SELECT_BY_EMAIL_QUERY,
                             new BeanPropertyRowMapper<>(User.class), email));
         } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException(email);
+            return Optional.empty();
         }
     }
 
