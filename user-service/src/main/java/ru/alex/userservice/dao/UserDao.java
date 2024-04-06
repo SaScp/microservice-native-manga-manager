@@ -1,23 +1,26 @@
 package ru.alex.userservice.dao;
 
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import ru.alex.userservice.SQL.SQLConstant;
+import ru.alex.userservice.SQL.UserSQLConstant;
+import ru.alex.userservice.dao.abstract_dao.AbstractDefaultDao;
+import ru.alex.userservice.dao.abstract_dao.FindAllDao;
 import ru.alex.userservice.model.User;
 
 import java.lang.reflect.Field;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
-public class UserDao extends AbstractDao<User> {
+public class UserDao extends AbstractDefaultDao<User> implements FindAllDao<User> {
 
     public UserDao(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
@@ -26,14 +29,14 @@ public class UserDao extends AbstractDao<User> {
     public Optional<User> save(User entity) {
 
         if (Optional.ofNullable(entity).isEmpty()) {
+            log.error("entity is null");
             return Optional.empty();
         }
 
-        this.jdbcTemplate.update("INSERT INTO user_microservice.t_user" +
-                        "(id, email, password, username, full_name, date_of_birth, registration_date, sex) VALUES (?,?,?,?,?,?,?,?)",
+        this.jdbcTemplate.update(UserSQLConstant.SAVE_USER_QUERY,
                 entity.getId(), entity.getEmail(), entity.getPassword(), entity.getUsername(),
-                entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getSex()
-        );
+                entity.getFullName(), entity.getDateOfBirth(), entity.getRegistrationDate(), entity.getSex());
+
         log.info("save: {}", entity.getId());
         return Optional.ofNullable(entity);
     }
@@ -44,58 +47,62 @@ public class UserDao extends AbstractDao<User> {
             log.error("an id or email must be present");
             return 0;
         }
-
         int paramIndex = 1;
         Field[] fields = entity.getClass().getDeclaredFields();
         List<Object> params = new ArrayList<>();
         StringBuilder sql = generateUpdateDataForQuery(fields, params, entity);
 
-        if (SQLConstant.BEGIN_UPDATE_QUERY.length() == sql.toString().length()) {
+        if (UserSQLConstant.BEGIN_UPDATE_USER_QUERY.length() == sql.toString().length()) {
             log.error("there are no updated elements in the request");
             return 0;
         }
-        sql.append(SQLConstant.END_UPDATE_QUERY);
+        sql.append(UserSQLConstant.END_UPDATE_USER_QUERY);
 
-        try (PreparedStatement preparedStatement =
-                     this.jdbcTemplate.getDataSource().getConnection().prepareStatement(sql.toString())) {
-            for (var i : params)
-                preparedStatement.setObject(paramIndex++, i);
+        return this.jdbcTemplate.update(sql.toString(), params);
 
-            return preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            log.error("error opening connection");
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
     public Optional<List<User>> findAll() {
-        return Optional.of(this.jdbcTemplate.query(SQLConstant.SELECT_QUERY, new BeanPropertyRowMapper<>(User.class)));
+        return Optional.of(this.jdbcTemplate.query(UserSQLConstant.SELECT_USER_QUERY,
+                new BeanPropertyRowMapper<>(User.class)));
     }
 
     @Override
-    public int delete(Integer id) {
+    public int delete(Long id) {
         if (Optional.ofNullable(id).isEmpty()) {
             log.error("id must be present");
             return 0;
         }
-      return this.jdbcTemplate.update(SQLConstant.DELETE_QUERY, id);
+        return this.jdbcTemplate.update(UserSQLConstant.DELETE_USER_QUERY, id);
     }
 
     @Override
-    public Optional<User> findById(Integer id) {
+    public Optional<User> findById(Long id) {
         if (Optional.ofNullable(id).isEmpty()) {
-            log.error("id must be present");
+            log.error("id must be present!");
             return Optional.empty();
         }
 
         return Optional.ofNullable(this.jdbcTemplate
-                .queryForObject(SQLConstant.SELECT_BY_ID_QUERY,
+                .queryForObject(UserSQLConstant.SELECT_BY_ID_USER_QUERY,
                         new BeanPropertyRowMapper<>(User.class), id));
     }
 
+    public Optional<User> findByEmail(String email) {
+
+        if (Optional.ofNullable(email).isEmpty()) {
+            log.error("email must be present!");
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(this.jdbcTemplate
+                .queryForObject(UserSQLConstant.SELECT_BY_EMAIL_QUERY,
+                        new BeanPropertyRowMapper<>(User.class), email));
+    }
+
     private StringBuilder generateUpdateDataForQuery(Field[] fields, List<Object> params, User entity) {
-        StringBuilder sql = new StringBuilder(SQLConstant.BEGIN_UPDATE_QUERY);
+        StringBuilder sql = new StringBuilder(UserSQLConstant.BEGIN_UPDATE_USER_QUERY);
         for (int i = 0; i < fields.length; i++) {
             fields[i].setAccessible(true);
             if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
