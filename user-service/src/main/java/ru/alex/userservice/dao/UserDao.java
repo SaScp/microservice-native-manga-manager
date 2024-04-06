@@ -18,6 +18,7 @@ import ru.alex.userservice.dao.abstract_dao.AbstractDefaultDao;
 import ru.alex.userservice.dao.abstract_dao.FindAllDao;
 import ru.alex.userservice.dao.abstract_dao.FindByIdDao;
 import ru.alex.userservice.model.User;
+import ru.alex.userservice.util.exception.SavingUserException;
 import ru.alex.userservice.util.exception.UserNotFoundException;
 
 import java.lang.reflect.Field;
@@ -54,10 +55,10 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
 
         } catch (DuplicateKeyException e) {
             log.error("duplicate key exception", e);
-            throw new DuplicateKeyException(entity.getId());
+            throw new SavingUserException();
         } catch (DataIntegrityViolationException e) {
             log.error("data integrity violation", e);
-            throw new DataIntegrityViolationException(entity.getId());
+            throw new SavingUserException();
         }
     }
 

@@ -20,7 +20,7 @@ public class DefaultUserService implements UserService {
 
     @Override
     public User createUser(User user) {
-        return userRepository.save(user).orElseThrow(() -> new SavingUserException());
+        return userRepository.save(user).orElseThrow(SavingUserException::new);
     }
 
     @Override
