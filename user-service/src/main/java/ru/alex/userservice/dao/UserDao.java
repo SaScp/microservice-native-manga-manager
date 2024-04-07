@@ -64,7 +64,7 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
 
     @Override
     public int update(User entity) {
-        if (entity.getEmail() == null && entity.getId() == null) {
+        if (entity.getId() == null) {
             log.error("an id or email must be present");
             return 0;
         }
@@ -81,11 +81,29 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
 
         try {
             return this.jdbcTemplate.update(sql.toString(), params);
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             log.error("there are no updated elements in the request");
             return 0;
         }
 
+    }
+
+    private StringBuilder generateUpdateDataForQuery(Field[] fields, List<Object> params, User entity) {
+        StringBuilder sql = new StringBuilder(UserSQLConstant.BEGIN_UPDATE_USER_QUERY);
+        for (int i = 0; i < fields.length; i++) {
+            fields[i].setAccessible(true);
+            if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
+                if (!fields[i].getName().equals("id")) {
+                    if (fields[i].isAnnotationPresent(Column.class)) {
+                        sql.append(fields[i].getAnnotation(Column.class).value()).append(i + 1 < fields.length ? "=?," : " ");
+                    } else {
+                        sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                    }
+                    params.add(ReflectionUtils.getField(fields[i], entity));
+                }
+            }
+        }
+        return sql;
     }
 
     @Override
@@ -120,7 +138,6 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
             log.error("id must be present!");
             return Optional.empty();
         }
-
         try {
             return Optional.ofNullable(this.jdbcTemplate
                     .queryForObject(UserSQLConstant.SELECT_BY_ID_USER_QUERY,
@@ -143,24 +160,6 @@ public class UserDao extends AbstractDefaultDao<User, String> implements FindAll
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-    }
-
-    private StringBuilder generateUpdateDataForQuery(Field[] fields, List<Object> params, User entity) {
-        StringBuilder sql = new StringBuilder(UserSQLConstant.BEGIN_UPDATE_USER_QUERY);
-        for (int i = 0; i < fields.length; i++) {
-            fields[i].setAccessible(true);
-            if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
-                if (!fields[i].getName().equals("id") && !fields[i].getName().equals("email")) {
-                    if (fields[i].isAnnotationPresent(Column.class)) {
-                        sql.append(fields[i].getAnnotation(Column.class).value()).append(i + 1 < fields.length ? "=?," : " ");
-                    } else {
-                        sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
-                    }
-                    params.add(ReflectionUtils.getField(fields[i], entity));
-                }
-            }
-        }
-        return sql;
     }
 
 

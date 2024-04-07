@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.util.ReflectionUtils;
+import ru.alex.userservice.SQL.UserSQLConstant;
 import ru.alex.userservice.model.User;
 import static org.junit.jupiter.api.Assertions.*;
 import java.lang.reflect.Field;
@@ -29,13 +31,13 @@ public class CreateUpdateQueryTests {
 
     @Test
     public void testCreateQueryWhenAllUpdateParam() {
-        assertEquals(6, update(new User("1", "<EMAIL>",
+        assertEquals(7, update(new User("1", "<EMAIL>",
                 "<PASSWORD>", "user", "user",
-                LocalDateTime.now(), LocalDateTime.now(), 'w')));
+                LocalDateTime.now(), LocalDateTime.now(), "ROLE_USER")));
     }
     @Test
     public void testCreateQueryWhenFullNameAndDataOfBirthUpdateParam() {
-        assertEquals(2, update(new User(null, "<EMAIL>",
+        assertEquals(0, update(new User(null, "<EMAIL>",
                 null, null, "user",
                 LocalDateTime.now(), null, null)));
     }
@@ -54,7 +56,7 @@ public class CreateUpdateQueryTests {
 
     @Test
     public void testCreateWhenOnlyEmailAndIdUpdateParamIsNotNullInQuery() {
-        assertEquals(0, update(new User("<ID>", "<EMAIL>",
+        assertEquals(1, update(new User("<ID>", "<EMAIL>",
                 null, null, null,
                 null, null, null)));
     }
@@ -67,13 +69,13 @@ public class CreateUpdateQueryTests {
 
     @Test
     public void testCreateWhenThreeUpdateParamIsNotNullInQuery() {
-        assertEquals(3, update(new User("<ID>", "<EMAIL>",
+        assertEquals(4, update(new User("<ID>", "<EMAIL>",
                 "<PASSWORD>", "<USER>","USER",
                 null, null, null)));
     }
 
     private int update(User entity) {
-        if (entity.getEmail() == null && entity.getId() == null) {
+        if ( entity.getId() == null) {
             log.error("an id or email must be present");
             return 0;
         }
@@ -96,12 +98,16 @@ public class CreateUpdateQueryTests {
     }
 
     private StringBuilder generateUpdateDataForQuery(Field[] fields, List<Object> params, User entity) {
-        StringBuilder sql = new StringBuilder("UPDATE user_microservice.t_user SET ");
+        StringBuilder sql = new StringBuilder(UserSQLConstant.BEGIN_UPDATE_USER_QUERY);
         for (int i = 0; i < fields.length; i++) {
             fields[i].setAccessible(true);
             if (Optional.ofNullable(ReflectionUtils.getField(fields[i], entity)).isPresent()) {
-                if (!fields[i].getName().equals("id") && !fields[i].getName().equals("email")) {
-                    sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                if (!fields[i].getName().equals("id")) {
+                    if (fields[i].isAnnotationPresent(Column.class)) {
+                        sql.append(fields[i].getAnnotation(Column.class).value()).append(i + 1 < fields.length ? "=?," : " ");
+                    } else {
+                        sql.append(fields[i].getName()).append(i + 1 < fields.length ? "=?," : " ");
+                    }
                     params.add(ReflectionUtils.getField(fields[i], entity));
                 }
             }

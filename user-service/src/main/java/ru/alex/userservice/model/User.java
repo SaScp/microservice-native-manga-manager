@@ -2,7 +2,9 @@ package ru.alex.userservice.model;
 
 import lombok.*;
 import org.springframework.data.relational.core.mapping.Column;
+import ru.alex.userservice.dto.UserDto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -10,6 +12,7 @@ import java.util.Date;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     private String id;
@@ -24,13 +27,12 @@ public class User {
     private String fullName;
 
     @Column(value = "date_of_birth")
-    private Date dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     @Column(value = "registration_date")
-    private Date registrationDate;
+    private LocalDateTime registrationDate;
 
     @Column(value = "c_role")
     private String role;
-
 
 }

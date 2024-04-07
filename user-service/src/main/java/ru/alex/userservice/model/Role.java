@@ -1,4 +1,5 @@
 package ru.alex.userservice.model;
 
-public class Role {
+public enum Role {
+    ROLE_USER, ROLE_ADMIN
 }

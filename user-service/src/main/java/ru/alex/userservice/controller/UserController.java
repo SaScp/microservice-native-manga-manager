@@ -1,15 +1,16 @@
 package ru.alex.userservice.controller;
 
 import lombok.AllArgsConstructor;
+import org.hibernate.validator.constraints.Email;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import ru.alex.userservice.dto.UserDto;
 import ru.alex.userservice.service.UserService;
+
+import java.net.URI;
 
 @RestController
 @AllArgsConstructor
@@ -29,5 +30,16 @@ public class UserController {
     @GetMapping("/{email:^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$}")
     public ResponseEntity<UserDto> findByEmail(@PathVariable("email") String id) {
         return ResponseEntity.ok(modelMapper.map(userService.findByEmail(id), UserDto.class));
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<UserDto> create(@Validated @RequestBody UserDto userDto) {
+        return ResponseEntity.created(URI.create("/user/create"))
+                .body(modelMapper.map(userService.createUser(userDto), UserDto.class));
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<?> update(@Validated @RequestBody UserDto userDto) {
+        return null;
     }
 }
