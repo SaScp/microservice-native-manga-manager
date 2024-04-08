@@ -22,7 +22,7 @@ public class UserDto {
     @NotNull(groups = {Created.class})
     private String fullName;
 
-    @NotNull(groups = {Created.class})
+
     private LocalDateTime dateOfBirth;
 
     @NotNull(groups = {Created.class})

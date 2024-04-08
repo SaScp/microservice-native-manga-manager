@@ -1,6 +1,7 @@
 package ru.alex.userservice.model;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import ru.alex.userservice.dto.UserDto;
 

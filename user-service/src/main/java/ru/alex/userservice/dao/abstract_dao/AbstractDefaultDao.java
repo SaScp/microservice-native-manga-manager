@@ -9,9 +9,5 @@ public abstract class AbstractDefaultDao<T, ID> implements DefaultDao<T, ID>, Fi
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    public int update(T entity) {
-        return 0;
-    }
 
 }

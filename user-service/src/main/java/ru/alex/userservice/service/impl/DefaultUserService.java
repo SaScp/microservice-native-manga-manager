@@ -22,6 +22,7 @@ public class DefaultUserService implements UserService {
 
     private UserRepository userRepository;
 
+    @Transactional
     @Override
     public User createUser(UserDto entity) {
         return userRepository.save(User.builder()
@@ -30,7 +31,7 @@ public class DefaultUserService implements UserService {
                         .email(entity.getEmail())
                         .fullName(entity.getFullName())
                         .password(entity.getPassword())
-                        .dateOfBirth(entity.getDateOfBirth())
+                        .dateOfBirth(LocalDateTime.now())
                         .registrationDate(LocalDateTime.now())
                         .role(Role.ROLE_USER.name()).build()
                 ).orElseThrow(SavingUserException::new);

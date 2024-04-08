@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS user_microservice.t_user
     username          VARCHAR(255)        NOT NULL,
     full_name         VARCHAR(255)        NOT NULL,
     date_of_birth     DATE                NOT NULL,
-    registration_date DATE                NOT NULL
+    registration_date DATE                NOT NULL,
+    c_role            VARCHAR(255)        NOT NULL
     );
 
