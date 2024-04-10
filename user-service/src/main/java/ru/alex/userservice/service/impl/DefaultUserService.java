@@ -1,6 +1,8 @@
 package ru.alex.userservice.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.alex.userservice.dto.UserDto;
@@ -12,7 +14,9 @@ import ru.alex.userservice.util.exception.SavingUserException;
 import ru.alex.userservice.util.exception.UserNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -20,27 +24,30 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class DefaultUserService implements UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultUserService.class);
     private UserRepository userRepository;
 
     @Transactional
     @Override
     public User createUser(UserDto entity) {
-        return userRepository.save(User.builder()
-                        .id(UUID.randomUUID().toString())
-                        .username(entity.getUsername())
-                        .email(entity.getEmail())
-                        .fullName(entity.getFullName())
-                        .password(entity.getPassword())
-                        .dateOfBirth(LocalDateTime.now())
-                        .registrationDate(LocalDateTime.now())
-                        .role(Role.ROLE_USER.name()).build()
-                ).orElseThrow(SavingUserException::new);
+        log.info(String.valueOf(Role.ROLE_USER));
+        User user = User.builder()
+                .id(UUID.randomUUID().toString())
+                .username(entity.getUsername())
+                .email(entity.getEmail())
+                .fullName(entity.getFullName())
+                .password(entity.getPassword())
+                .dateOfBirth(LocalDateTime.now())
+                .registrationDate(LocalDateTime.now())
+                .roles(Set.of(Role.ROLE_USER))
+                .build();
+        return userRepository.save(user);
     }
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() ->
-                new UserNotFoundException(email));
+        return null;/*userRepository.findByEmail(email).orElseThrow(() ->
+                new UserNotFoundException(email));*/
     }
 
     @Override

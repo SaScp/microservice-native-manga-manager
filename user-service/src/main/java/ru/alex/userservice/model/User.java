@@ -1,12 +1,15 @@
 package ru.alex.userservice.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
+
+
 import ru.alex.userservice.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -14,26 +17,44 @@ import java.util.Date;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(schema = "user_microservice", name = "t_user")
 public class User {
 
+    @Id
     private String id;
 
+    @Column(name = "email")
     private String email;
 
+    @Column(name = "password")
     private String password;
 
+    @Column(name = "username")
     private String username;
 
-    @Column(value = "full_name")
+    @Column(name = "full_name")
     private String fullName;
 
-    @Column(value = "date_of_birth")
+    @Column(name = "date_of_birth")
     private LocalDateTime dateOfBirth;
 
-    @Column(value = "registration_date")
+    @Column(name = "registration_date")
     private LocalDateTime registrationDate;
 
-    @Column(value = "c_role")
-    private String role;
+    @Column(name = "role_id")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "t_role_t_user", schema = "user_microservice")
+    private Set<Role> roles;
 
+    @OneToMany(mappedBy = "user")
+    private List<Collection> collections;
+
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public void addCollection(Collection collection) {
+        collections.add(collection);
+    }
 }
