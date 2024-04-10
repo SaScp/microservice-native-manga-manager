@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table
+@Table(schema = "user_microservice", name = "t_collection")
 public class Collection {
 
     @Id
