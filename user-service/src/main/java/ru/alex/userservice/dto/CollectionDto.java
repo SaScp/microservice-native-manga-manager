@@ -7,5 +7,6 @@ public class CollectionDto {
     private String name;
 
     private Integer mangaCount;
+
     private String description;
 }

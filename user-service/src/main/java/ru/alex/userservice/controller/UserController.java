@@ -11,6 +11,7 @@ import ru.alex.userservice.dto.UserDto;
 import ru.alex.userservice.service.UserService;
 
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @AllArgsConstructor
@@ -23,13 +24,17 @@ public class UserController {
     private ModelMapper modelMapper;
 
     @GetMapping("/{id:^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$}")
-    public ResponseEntity<UserDto> findById(@PathVariable("id") String id) {
-        return ResponseEntity.ok(modelMapper.map(userService.findById(id), UserDto.class));
+    public ResponseEntity<CompletableFuture<UserDto>> findById(@PathVariable("id") String id) {
+        return ResponseEntity
+                        .ok(userService.findById(id)
+                                .thenApply(user -> modelMapper.map(user, UserDto.class)));
     }
 
     @GetMapping("/{email:^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$}")
-    public ResponseEntity<UserDto> findByEmail(@PathVariable("email") String id) {
-        return ResponseEntity.ok(modelMapper.map(userService.findByEmail(id), UserDto.class));
+    public ResponseEntity<CompletableFuture<UserDto>> findByEmail(@PathVariable("email") String id) {
+        return ResponseEntity
+                .ok(userService.findByEmail(id)
+                        .thenApply(user -> modelMapper.map(user, UserDto.class)));
     }
 
     @PostMapping("/create")

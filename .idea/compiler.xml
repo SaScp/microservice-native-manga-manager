@@ -9,6 +9,7 @@
         <module name="comment-service" />
         <module name="user-service" />
         <module name="manga-service" />
+        <module name="authorization-server" />
         <module name="gateway" />
         <module name="discover-server" />
       </profile>
@@ -16,6 +17,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="authorization-server" options="-parameters" />
       <module name="comment-service" options="-parameters" />
       <module name="discover-server" options="-parameters" />
       <module name="gateway" options="-parameters" />

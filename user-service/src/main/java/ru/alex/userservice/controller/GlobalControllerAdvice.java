@@ -11,6 +11,7 @@ import ru.alex.userservice.util.exception.handler.HandlerStrategy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
@@ -25,10 +26,10 @@ public class GlobalControllerAdvice {
     }
 
     @ExceptionHandler({UserNotFoundException.class})
-    public ResponseEntity<ProblemDetail> exHandler(RuntimeException exception) {
+    public ResponseEntity<CompletableFuture<ProblemDetail>> exHandler(RuntimeException exception) {
         ProblemDetail problemDetail = handlers.get(exception.getClass()).execute(exception);
         return ResponseEntity
                 .status(problemDetail.getStatus())
-                .body(problemDetail);
+                .body(CompletableFuture.completedFuture(problemDetail));
     }
 }
