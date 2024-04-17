@@ -1,0 +1,18 @@
+spring:
+  application:
+   name: authorization-server
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username:
+    password:
+    url:
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    ip-address: true
+server:
+  port: 8082
